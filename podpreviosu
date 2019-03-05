@@ -1,0 +1,52 @@
+// check if volumeClaimTemplatelabel is present
+	if _, exists := podLabels["fissile.cloudfoundry.org/statefulset-pod-with-volumeclaimtemplate-name"]; exists {
+		podNameSplitList := strings.Split(pod.GetName(), "-")
+		currentVersionName := string(podNameSplitList[len(podNameSplitList)-2][1])
+		currentVersionInt, err := strconv.Atoi(currentVersionName)
+		if err != nil {
+			m.log.Info("RohitLogs Unable to convert atoi")
+		}
+		if currentVersionInt == 1 {
+			// Add label of pvc attached
+			podLabels["pvc-attached-version"] = strconv.Itoa(currentVersionInt)
+			pod.SetAnnotations(podLabels)
+		} else if currentVersionInt > 1 {
+			//if _, exists := podLabels["pvc-attachment-modified"]; !exists {
+			// calculate previous pod name
+			previousVersionInt := currentVersionInt - 1
+			previousPodNameSplitList := podNameSplitList
+			previousVersionName := fmt.Sprintf("%s%d", "v", previousVersionInt)
+			previousPodNameSplitList[len(previousPodNameSplitList)-2] = previousVersionName
+			previousPodName := strings.Join(previousPodNameSplitList, "-")
+			//m.log.Info("RohitLogs", previousPodName)
+
+			// get previous pod
+			key := mTypes.NamespacedName{Namespace: m.ctrConfig.Namespace, Name: previousPodName}
+			previousPod := &corev1.Pod{}
+			err := m.client.Get(ctx, key, previousPod)
+			if err != nil {
+				m.log.Info("RohitLogs couldn't get previousPod")
+			}
+
+			// fetch attached version
+			previousPodLabels := previousPod.GetAnnotations()
+			previousPVCVersion, err := strconv.Atoi(previousPodLabels["pvc-attached-version"])
+			if err != nil {
+				m.log.Info("RohitLogs couldn't get previousPod", previousPVCVersion)
+			}
+
+			// generate PVCName
+			pvcNameShort := previousPodLabels["fissile.cloudfoundry.org/statefulset-pod-with-volumeclaimtemplate-name"]
+			pvcName := fmt.Sprintf("%s%s%s", pvcNameShort, "-", previousPodName)
+
+			// TODO Check if that PVC exists
+			if _, exists := podLabels["pvc-attachment-modified"]; exists {
+				// replace volume & VolumeMounts
+				pod.Spec.Volumes[0].PersistentVolumeClaim.ClaimName = pvcName
+				//m.log.Info("RohitLogs", pod.Spec.Volumes[0].PersistentVolumeClaim.ClaimName)
+
+				// Add modified annotation
+				podLabels := pod.GetAnnotations()
+				podLabels["pvc-attachment-modified"] = "yes"
+				pod.SetAnnotations(podLabels)
+			}
