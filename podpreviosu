@@ -87,3 +87,64 @@
 				for i := 0; i < len(podLists.Items); i++ {
 					m.log.Info("RohitLogs - pods", podLists.Items[i].GetName())
 				}*/
+
+
+
+	//opts := client.InNamespace(m.ctrConfig.Namespace)
+	//if checkPVCOlderVersion
+
+	/*podLists := &corev1.PodList{}
+	if err != nil {
+		err = r.client.List(ctx, opts, podLists)
+		r.log.Info("RohitLogs Error getting list")
+	}
+
+	r.log.Info("RohitLogs - pods", podLists)
+
+	for i := 0; i < len(persistentVolumeClaims.Items); i++ {
+		key := types.NamespacedName{Namespace: statefulSet.GetNamespace(), Name: persistentVolumeClaims.Items[i].GetName()}
+		persistentVolumeClaim := &corev1.PersistentVolumeClaim{}
+		err := r.client.Get(ctx, key, persistentVolumeClaim)
+		if err != nil {
+			r.log.Info("RohitLogs Error getting persistentvolumeclaim")
+		}
+
+		allLabels := persistentVolumeClaim.GetLabels()
+		if allLabels == nil {
+			allLabels = make(map[string]string)
+			allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Name"] = exStatefulSet.GetName()
+			allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Version"] = exStatefulSet.GetResourceVersion()
+			persistentVolumeClaim.SetLabels(allLabels)
+		} else {
+			allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Name"] = exStatefulSet.GetName()
+			allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Version"] = exStatefulSet.GetResourceVersion()
+			persistentVolumeClaim.SetLabels(allLabels)
+		}
+		///r.log.Info("RohitLogs", persistentVolumeClaims.Items[i])
+		//			persistentVolumeClaims.Items.
+		err = r.client.Update(ctx, persistentVolumeClaim)
+		if err != nil {
+			return errors.Wrapf(err, "Couldn't update StatefulSets for cleanup RohitLogs")
+		}
+	}*/
+
+	// Main Logic
+
+	/*One label will be added to the Pod. (If we can access uid of pod then no need of labels at all)
+	fissile.cloudfoundry.org/volume-uuid: uuid
+
+	Function 1 -> inside Handle for PodMutators
+	# If no label found in the Pod, append the label to pod, volume and volume claim ( These pods are created for the first time )
+		Example :- 5b52d72c-82b3-4f8e-beb5-437a974842c
+		Store volume and volomeMount yaml config in a dict with the uuid as the key. (Should I store all the volumeMounts & volumes)
+	# If change occures to any of the volume or volumeMount config yaml, then
+		# Update volume and volomeMount yaml config in a dict with the uuid as the key.
+	# If change occures but not to any of the volume and volumeMount (If only the version number of the volume changes, it is ignored)
+		# If label found in the Pod, append the volume and volumeclaim to the current Pod from the dict.
+
+	Doubt - We can have multiple containers - All the containers and all the volume mounts in it and multiple volumemounts or volumes - All of them.
+	Doubt - Can we have access to PVC's or PV's in handle function ? - Done.
+	Doubt - I spoke to that person about configuration
+	Doubt - Manual createion of PV doesn't have naming convention. - Ignore them Done.
+
+	isExtendedStatefulSetPod */
