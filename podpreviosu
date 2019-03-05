@@ -50,3 +50,40 @@
 				podLabels["pvc-attachment-modified"] = "yes"
 				pod.SetAnnotations(podLabels)
 			}
+			
+			
+			
+			/*!= nil {
+					r.log.Info("RohitLogs Error getting persistentvolumeclaim")
+				}
+
+				allLabels := persistentVolumeClaim.GetLabels()
+				if allLabels == nil {
+					allLabels = make(map[string]string)
+					allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Name"] = exStatefulSet.GetName()
+					allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Version"] = exStatefulSet.GetResourceVersion()
+					persistentVolumeClaim.SetLabels(allLabels)
+				} else {
+					allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Name"] = exStatefulSet.GetName()
+					allLabels["fissile.cloudfoundry.org/extendedStatefulSet-Version"] = exStatefulSet.GetResourceVersion()
+					persistentVolumeClaim.SetLabels(allLabels)
+				}
+				///r.log.Info("RohitLogs", persistentVolumeClaims.Items[i])
+				//			persistentVolumeClaims.Items.
+				err = r.client.Update(ctx, persistentVolumeClaim)
+				if err != nil {
+					return errors.Wrapf(err, "Couldn't update StatefulSets for cleanup RohitLogs")
+				}
+
+			// delete pvc v2 created
+
+			/*
+				opts := client.InNamespace(m.ctrConfig.Namespace)
+				podLists := &corev1.PodList{}
+				err = m.client.List(ctx, opts, podLists)
+				if err != nil {
+					m.log.Info("RohitLogs Error getting list")
+				}
+				for i := 0; i < len(podLists.Items); i++ {
+					m.log.Info("RohitLogs - pods", podLists.Items[i].GetName())
+				}*/
